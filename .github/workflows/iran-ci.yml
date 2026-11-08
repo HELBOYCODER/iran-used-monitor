@@ -16,6 +16,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests/iran -v
+      - run: python -m unittest discover -s tests/release -v
       - run: python -m compileall -q iran_monitor
       - uses: actions/setup-node@v4
         with:
@@ -26,3 +27,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -f Dockerfile.iran -t dastdomban:test .
+      - name: Container API smoke
+        run: |
+          set -eu
+          export IRAN_MONITOR_TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          docker run -d --name monitor -p 127.0.0.1:8000:8000 -e IRAN_MONITOR_TOKEN -e IRAN_MONITOR_HOST=0.0.0.0 -e IRAN_MONITOR_DB=/app/data/test.sqlite3 dastdomban:test
+          trap 'docker rm -f monitor >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8000/api/health; then break; fi
+            sleep 1
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/api/watches)" = 401
+          curl -fsS -H "Authorization: Bearer $IRAN_MONITOR_TOKEN" http://127.0.0.1:8000/api/watches
+          curl -fsS http://127.0.0.1:8000/ > /dev/null
