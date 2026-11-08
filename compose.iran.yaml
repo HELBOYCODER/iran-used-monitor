@@ -1,0 +1,32 @@
+services:
+  dastdomban:
+    build:
+      context: .
+      dockerfile: Dockerfile.iran
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      IRAN_MONITOR_TOKEN: ${IRAN_MONITOR_TOKEN:?Set IRAN_MONITOR_TOKEN in .env}
+      IRAN_MONITOR_HOST: 0.0.0.0
+      IRAN_MONITOR_PORT: "8000"
+      IRAN_MONITOR_DB: /app/data/iran-monitor.sqlite3
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - iran-data:/app/data
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  iran-data:
