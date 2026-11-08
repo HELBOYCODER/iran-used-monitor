@@ -17,6 +17,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests/iran -v
       - run: python -m unittest discover -s tests/release -v
+      - run: python -m unittest discover -s iran_web/tests -v
       - run: python -m compileall -q iran_monitor
       - uses: actions/setup-node@v4
         with:
