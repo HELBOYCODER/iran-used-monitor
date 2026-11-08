@@ -91,6 +91,23 @@ node --check iran_web/app.js
 
 Node فقط برای بررسی کد رابط در توسعه است، نه اجرای محصول. تست‌های ایرانی از تست‌های بالادستی جدا هستند؛ موفقیت آن‌ها به معنی تست شدن کل برنامه قدیمی یا دسترسی زنده به همه بازارها نیست. [گزارش آزمون](docs/IRAN-TESTS.md).
 
+## تبدیل سایت به API و خروجی JSON
+
+پل خط فرمان به همان اتصال‌های بک‌اند وصل است؛ نیازی به CLI-Anything برای اجرای محصول نیست. [گزارش ابزار و روش](docs/WEBSITE-TO-API-FA.md).
+
+```sh
+python3 tools/iran_market_cli.py sources
+IRAN_MONITOR_EXPERIMENTAL_SOURCES=1 python3 tools/iran_market_cli.py search --source esam --query لپتاپ --count-only
+```
+
+دریافت مستقیم پیش‌فرض مقصد را به IP عمومی پین می‌کند. در محیط‌هایی مانند شبکه این Android که DNS مصنوعی دارد، گزینه آگاهانه `IRAN_MONITOR_TRUST_SYSTEM_DNS=1` فقط برای چهار دامنه ثابت بازارها، اتصال HTTPS استاندارد سیستم را فعال می‌کند؛ redirect همچنان رد می‌شود. این گزینه به DNS سیستم اعتماد می‌کند و معادل پین‌کردن IP عمومی نیست. برای URL دلخواه خوراک یا AI این استثنا اعمال نمی‌شود.
+
+```sh
+IRAN_MONITOR_TRUST_SYSTEM_DNS=1 IRAN_MONITOR_EXPERIMENTAL_SOURCES=1 python3 tools/iran_market_cli.py search --source komodaa --query لباس --count-only
+```
+
+این حالت در آزمون زنده ایسام و کمدا پاسخ واقعی داد. برای سرور دارای DNS عادی ابتدا حالت پیش‌فرض را امتحان کنید. در Compose، متغیر را در `.env` اضافه کنید.
+
 ## امنیت و مشارکت
 
 [امنیت و حریم خصوصی](docs/IRAN-SECURITY.md) · [منابع و محدودیت‌ها](docs/IRAN-SOURCES.md) · [منشأ پروژه](docs/UPSTREAM-FA.md)

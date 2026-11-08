@@ -58,6 +58,22 @@ python3 tools/iran_market_cli.py --backend-root /var/minis/workspace/iran-backen
 
 همکار بک‌اند سپس حالت صریح `IRAN_MONITOR_USE_ENV_PROXY=1` را اضافه کرد؛ CLI بدون تغییر آن را مصرف می‌کند. آزمون مجدد با این فلگ `not_configured` برگرداند: نام‌های HTTPS_PROXY و https_proxy در محیط حاضر بودند اما مقدار هر دو خالی بود (فقط خالی/غیرخالی بررسی شد، هیچ مقدار محرمانه چاپ نشد). بنابراین تا زمان تنظیم واقعی پراکسی مورداعتماد، موفقیت transport زنده ادعا نمی‌شود. راه production، DNS عمومی واقعی یا پراکسی معتبر با پذیرش صریح مرز اعتماد توسط اپراتور است؛ حذف کنترل SSRF یا مجاز کردن عمومی رنج synthetic پیشنهاد نمی‌شود. هیچ endpoint تماس، login، captcha bypass، کوکی کاربر یا داده فروشنده مصرف نشده است.
 
+## نتیجه اتصال زنده پس از یکپارچه‌سازی
+
+پس از تشخیص ناسازگاری شبکه synthetic با IP pinning، گزینه صریح `IRAN_MONITOR_TRUST_SYSTEM_DNS=1` در بک‌اند اضافه شد. این حالت فقط چهار دامنه ثابت بازارهای ساخته‌شده را می‌پذیرد، از HTTPS استاندارد با رد redirect استفاده می‌کند و برای خوراک/AI دلخواه قابل استفاده نیست. کنترل پین IP پیش‌فرض تغییر نکرده است؛ این استثنا اعتماد به DNS میزبان را لازم دارد.
+
+آزمون واقعی از پل در ۸ نوامبر ۲۰۲۶، نه از فایل capture:
+
+```sh
+IRAN_MONITOR_TRUST_SYSTEM_DNS=1 IRAN_MONITOR_EXPERIMENTAL_SOURCES=1 python3 tools/iran_market_cli.py search --source esam --query ا --count-only
+IRAN_MONITOR_TRUST_SYSTEM_DNS=1 IRAN_MONITOR_EXPERIMENTAL_SOURCES=1 python3 tools/iran_market_cli.py search --source komodaa --query ا --count-only
+```
+
+- ایسام: `ok=true`, `transport=backend_live`, `fetched_count=10`, `matched_count=10`.
+- کمدا: `ok=true`, `transport=backend_live`, `fetched_count=18`, `matched_count=16`.
+- جزئیات آگهی‌ها در خروجی count-only حذف شد. شمار تطبیق با تغییر خوراک ممکن است تغییر کند.
+- این موفقیت، محدودیت نمونه صفحه اول و نامشخص‌بودن شهر را برطرف نمی‌کند.
+
 ## آزمون
 
 ```sh
