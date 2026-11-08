@@ -28,3 +28,12 @@
 ## CI و Docker
 
 گردش‌کار `.github/workflows/iran-ci.yml` تست Python 3.11/3.12/3.13 و build کانتینر و smoke احراز هویت را تعریف می‌کند. نتیجه واقعی CI باید از تب Actions همین مخزن بررسی شود؛ نتیجه محلی را با موفقیت Docker اشتباه نگیرید.
+
+### تأیید واقعی GitHub Actions
+
+[اجرای موفق 42497574332](https://github.com/HELBOYCODER/iran-used-monitor/actions/runs/42497574332) روی کد `e85fd23`:
+- هر سه job پایتون 3.11، 3.12 و 3.13 موفق؛ تست بک‌اند، رابط، پل و بسته انتشار همگی سبز.
+- job کانتینر موفق: `docker build -f Dockerfile.iran` و `Container API smoke` واقعاً اجرا شدند.
+- smoke داخل کانتینر: health موفق، API بدون توکن 401، API با توکن موفق و صفحه اصلی قابل دریافت.
+
+بنابراین محدودیت نبود daemon محلی با اجرای واقعی CI جبران شد؛ این نتیجه build/smoke است، نه آزمون بار تولید یا تست زنده بازارها داخل Docker.
